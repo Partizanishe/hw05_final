@@ -67,7 +67,8 @@ def post_edit(request, post_id):
     if request.user != post.author:
         return redirect("posts:post_detail", post_id)
     context = {"title": "Редактировать запись", "post": post, "is_edit": True}
-    form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
+    form = PostForm(request.POST or None, files=request.FILES or None,
+                    instance=post)
     if form.is_valid():
         form.save()
         return redirect("posts:post_detail", post.id)
@@ -110,5 +111,6 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    Follow.objects.filter(user=request.user, author__username=username).delete()
+    Follow.objects.filter(
+        user=request.user, author__username=username).delete()
     return redirect("posts:profile", username)

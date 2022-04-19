@@ -35,7 +35,8 @@ class Post(CreatedModel):
         help_text="Группа, к которой будет относиться пост",
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="posts", verbose_name="Автор"
+        User, on_delete=models.CASCADE, related_name="posts",
+        verbose_name="Автор"
     )
     image = models.ImageField("Картинка", upload_to="posts/", blank=True)
 
@@ -52,11 +53,13 @@ class Comment(CreatedModel):
     """Описывает модель комментариев."""
 
     post = models.ForeignKey(
-        Post, verbose_name="Пост", related_name="comments", on_delete=models.CASCADE
+        Post, verbose_name="Пост", related_name="comments",
+        on_delete=models.CASCADE
     )
 
     author = models.ForeignKey(
-        User, verbose_name="Автор", related_name="comments", on_delete=models.CASCADE
+        User, verbose_name="Автор", related_name="comments",
+        on_delete=models.CASCADE
     )
     text = models.TextField(
         verbose_name="Текст комментария", default=None, blank=False, null=False
@@ -81,12 +84,14 @@ class Follow(models.Model):
         verbose_name="Подписчик",
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="following", verbose_name="Автор"
+        User, on_delete=models.CASCADE, related_name="following",
+        verbose_name="Автор"
     )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "author"], name="follow_unique")
+            models.UniqueConstraint(
+                fields=["user", "author"], name="follow_unique")
         ]
 
     def __str__(self):

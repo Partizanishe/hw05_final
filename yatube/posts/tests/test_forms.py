@@ -224,7 +224,8 @@ class FollowCreateFormTests(TestCase):
         self.assertEqual(Follow.objects.count(), follow_count + 1)
         self.assertRedirects(response, const.PROFILE_URL)
         self.assertTrue(
-            Follow.objects.filter(author=self.author, user=self.user_1).exists()
+            Follow.objects.filter(
+                author=self.author, user=self.user_1).exists()
         )
 
     def test_create_unfollow(self):
@@ -243,5 +244,6 @@ class FollowCreateFormTests(TestCase):
         self.assertEqual(Follow.objects.count(), follow_count - 1)
         self.assertRedirects(response, const.PROFILE_URL)
         self.assertFalse(
-            Follow.objects.filter(author=self.author, user=self.user_1).exists()
+            Follow.objects.filter(author=self.author,
+                                  user=self.user_1).exists()
         )
