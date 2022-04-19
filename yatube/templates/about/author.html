@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+  Об авторе проекта
+{% endblock %}
+{% block content %}
+  <div class="container py-5">
+    <h1>Привет, я Рустам</h1>
+    <p>
+    Тут я размещу информацию о себе, используя свои умения верстать.
+    Картинки, блоки, элементы бустрап...
+    Когда раскидаюсь с дедлайном...
+    </p>
+  </div>
+  <div class="container py-5">
+    <img src="{% static 'img/gif/thatsfine.gif' %}">
+  </div>
+{% endblock %}
