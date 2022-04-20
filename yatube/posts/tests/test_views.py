@@ -145,6 +145,7 @@ class PaginatorViewsTest(TestCase):
         )
 
     def setUp(self) -> None:
+        cache.clear()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
