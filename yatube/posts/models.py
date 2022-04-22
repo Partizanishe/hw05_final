@@ -62,7 +62,7 @@ class Comment(CreatedModel):
         on_delete=models.CASCADE
     )
     text = models.TextField(
-        verbose_name="Текст комментария", default=None, blank=False, null=False
+        verbose_name="Текст комментария"
     )
 
     class Meta:

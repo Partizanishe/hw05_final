@@ -143,14 +143,18 @@ class PaginatorViewsTest(TestCase):
             Post(text=f"Post {i}", author=cls.user, group=cls.group)
             for i in range(settings.POST_PER_PAGE + const.OTHER_PAGES)
         )
+        cls.user_1 = User.objects.create_user(username=const.USERNAME_ALTER)
 
     def setUp(self) -> None:
         cache.clear()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.authorized_client_not_author = Client()
+        self.authorized_client_not_author.force_login(self.user_1)
 
     def test_paginator_on_pages_have_ten_post(self):
         """Количество постов на страницах не больше 10 штук."""
+        Follow.objects.create(user=self.user_1, author=self.user)
         urls = [
             [const.INDEX_URL, settings.POST_PER_PAGE],
             [const.GROUP_LIST_URL, settings.POST_PER_PAGE],
@@ -158,10 +162,11 @@ class PaginatorViewsTest(TestCase):
             [const.INDEX_URL + const.NEXT_PAGE, const.OTHER_PAGES],
             [const.GROUP_LIST_URL + const.NEXT_PAGE, const.OTHER_PAGES],
             [const.PROFILE_URL + const.NEXT_PAGE, const.OTHER_PAGES],
+            [const.FOLLOW_INDEX_URL, settings.POST_PER_PAGE]
         ]
         for url, page_count in urls:
             with self.subTest(url=url):
-                response = self.client.get(url)
+                response = self.authorized_client_not_author.get(url)
                 self.assertEqual(len(response.context["page_obj"]), page_count)
 
 
@@ -210,6 +215,10 @@ class FollowViewsTest(TestCase):
         cls.post = Post.objects.create(
             text=const.POST_TEXT, author=cls.author, group=cls.group
         )
+        cls.FOLLOW_URL = reverse("posts:profile_follow",
+                                 args=[cls.author.username])
+        cls.UNFOLLOW_URL = reverse(
+            "posts:profile_unfollow", args=[cls.author.username])
 
     def setUp(self):
         self.authorized_client = Client()
@@ -248,3 +257,41 @@ class FollowViewsTest(TestCase):
             const.FOLLOW_INDEX_URL)
         first_object = response.context.get("page_obj").object_list[0]
         self.assertNotEqual(first_object, new_post_author)
+
+    def test_create_follow(self):
+        """Проверка, что авторизованный пользователь
+        может подписываться на других пользователей
+        """
+        follow_count = Follow.objects.count()
+        form_data = {"username": self.author.username}
+        response = self.authorized_client_not_author_1.post(
+            self.FOLLOW_URL,
+            data=form_data,
+            follow=True,
+        )
+        self.assertEqual(Follow.objects.count(), follow_count + 1)
+        self.assertRedirects(response, const.PROFILE_URL)
+        self.assertTrue(
+            Follow.objects.filter(
+                author=self.author, user=self.user_1).exists()
+        )
+
+    def test_create_unfollow(self):
+        """Проверка, что авторизованный пользователь
+        может отписываться от других пользователей
+        """
+        follow = Follow.objects.create(user=self.user_1, author=self.author)
+        follow_count = Follow.objects.count()
+        follow.delete()
+        form_data = {"username": self.author.username}
+        response = self.authorized_client_not_author_1.post(
+            self.UNFOLLOW_URL,
+            data=form_data,
+            follow=True,
+        )
+        self.assertEqual(Follow.objects.count(), follow_count - 1)
+        self.assertRedirects(response, const.PROFILE_URL)
+        self.assertFalse(
+            Follow.objects.filter(author=self.author,
+                                  user=self.user_1).exists()
+        )
