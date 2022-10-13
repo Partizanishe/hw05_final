@@ -26,10 +26,8 @@ SECRET_KEY = "x3ji08+d^h!9obcf7h79x#y=nbpx$%5-r109qvx#d(v8a6j_z3"
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "[::1]",
-    "testserver",
+    'www.partizanishe.pythonanywhere.com',
+    'partizanishe.pythonanywhere.com',
 ]
 
 # Application definition
